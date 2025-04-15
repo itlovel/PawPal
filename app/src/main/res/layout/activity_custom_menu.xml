@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F0F4F8">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardFoodRecomendation"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="4dp"
+        android:backgroundTint="#93E1C2">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Custom Menu"
+            android:textSize="24sp"
+            android:textColor="#333333"
+            android:layout_marginTop="51dp"
+            android:layout_marginStart="25dp"/>
+
+        <EditText
+            android:id="@+id/etCalenderMenu"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:hint="Pilih tanggal"
+            android:background="@drawable/kotak"
+            android:padding="10dp"
+            android:layout_marginTop="95dp"
+            android:layout_marginStart="25dp"
+            android:layout_marginEnd="25dp"
+            android:focusable="false"
+            android:clickable="false"/>
+
+        <EditText
+            android:id="@+id/etSearchMenu"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="143dp"
+            android:layout_marginStart="25dp"
+            android:layout_marginEnd="25dp"
+            android:background="@drawable/kotak"
+            android:clickable="false"
+            android:focusable="false"
+            android:hint="Pilih menu"
+            android:padding="10dp" />
+    </androidx.cardview.widget.CardView>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvCustomMenu"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingTop="40dp"
+        android:layout_gravity="center"
+        android:paddingHorizontal="25dp"
+        android:backgroundTint="#F0F4F8">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_gravity="top"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:weightSum="2"
+        android:orientation="horizontal"
+        android:paddingHorizontal="25dp"
+        android:backgroundTint="#F0F4F8">
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="93dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#FFC700"
+            android:padding="12dp"
+            android:text="Back"
+            android:textColor="@color/black"
+            app:cornerRadius="15dp" />
+
+        <View
+            android:layout_width="120dp"
+            android:layout_height="match_parent" />
+
+        <Button
+            android:id="@+id/btnNext"
+            android:layout_width="93dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#FFC700"
+            android:padding="12dp"
+            android:text="Next"
+            android:textColor="@color/black"
+            app:cornerRadius="15dp" />
+    </LinearLayout>
+
+
+
+
+</LinearLayout>

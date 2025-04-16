@@ -8,16 +8,19 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import com.example.pawpal.CustomMenu.MenuItem;
+import com.example.pawpal.FoodData;
 import com.example.pawpal.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder> {
-    private List<MenuItem> foodList;
+    private List<FoodData> foodList;
 
-    public FoodAdapter(List<MenuItem> foodList) {
+    public FoodAdapter(List<FoodData> foodList) {
         this.foodList = foodList;
     }
 
@@ -30,10 +33,17 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull FoodViewHolder holder, int position) {
-        MenuItem food = foodList.get(position);
+        FoodData food = foodList.get(position);
         holder.foodName.setText(food.getName());
         holder.foodCalories.setText(food.getCalories() + " kcal");
-        holder.foodImage.setImageResource(food.getImageResourceId());
+        holder.foodCategory.setText(food.getCategory());
+        holder.foodDescription.setText(food.getDescription());
+
+
+        Glide.with(holder.itemView.getContext())
+                .load(food.getImageUrl())
+                .placeholder(R.drawable.placeholder_image) // Tambahkan gambar placeholder di drawable
+                .into(holder.foodImage);
     }
 
     @Override
@@ -42,14 +52,16 @@ public class FoodAdapter extends RecyclerView.Adapter<FoodAdapter.FoodViewHolder
     }
 
     public static class FoodViewHolder extends RecyclerView.ViewHolder {
-        TextView foodName, foodCalories;
+        TextView foodName, foodCalories, foodCategory, foodDescription;
         ImageView foodImage;
 
         public FoodViewHolder(@NonNull View itemView) {
             super(itemView);
             foodName = itemView.findViewById(R.id.tvFoodName);
-            foodCalories = itemView.findViewById(R.id.tvCalories);
+            foodCalories = itemView.findViewById(R.id.tvMenuItemCaloriesRecomendation);
+            foodCategory = itemView.findViewById(R.id.tvFoodCategory);
             foodImage = itemView.findViewById(R.id.imgFoodIcon);
+            foodDescription = itemView.findViewById(R.id.tvFoodDescription);
         }
     }
 }

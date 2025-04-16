@@ -2,6 +2,7 @@ package com.example.pawpal.FoodRecomendation;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -14,12 +15,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Parcelable;
 
 import com.example.pawpal.CustomMenu.CartActivity;
+import com.example.pawpal.FoodData;
 import com.example.pawpal.PetMealPlannerActivity;
 import com.example.pawpal.R;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -29,13 +33,30 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.pawpal.FoodRecomendation.FoodAdapter;
 import com.example.pawpal.CustomMenu.MenuItem;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class FoodRecommendationActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private FoodAdapter foodAdapter;
-    private List<MenuItem> foodList;
+    private List<FoodData> foodList;
     private TextView tvEmptyMessage;
     private Button btnBack;
+
+    private FirebaseFirestore db;
+
+    private String getCurrentDay() {
+        SimpleDateFormat sdf = new SimpleDateFormat("EEEE", new Locale("id", "ID"));
+        return sdf.format(new Date());
+
+
+    }
+
+
+    private boolean isValidCategory(String category) {
+        List<String> validCategories = Arrays.asList("Sarapan", "Snack", "Makan Siang", "Snack", "Makan Malam");
+        return validCategories.contains(category);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,19 +68,16 @@ public class FoodRecommendationActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btnBack);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        foodList = getIntent().getParcelableArrayListExtra("selectedItems");
+        TextView tvDayIndicator = findViewById(R.id.tvDayIndicator);
+        tvDayIndicator.setText(getCurrentDay());
 
-        if (foodList == null || foodList.isEmpty()) {
-            tvEmptyMessage.setVisibility(View.VISIBLE);
-            recyclerView.setVisibility(View.GONE);
-        } else {
-            tvEmptyMessage.setVisibility(View.GONE);
-            recyclerView.setVisibility(View.VISIBLE);
-            foodAdapter = new FoodAdapter(foodList);
-            recyclerView.setAdapter(foodAdapter);
-        }
+        foodList = new ArrayList<>();
+        foodAdapter = new FoodAdapter(foodList);
+        recyclerView.setAdapter(foodAdapter);
 
-        // Menggunakan OnBackPressedDispatcher untuk menangani tombol back
+        db = FirebaseFirestore.getInstance();
+        loadFoodData();
+
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -67,8 +85,45 @@ public class FoodRecommendationActivity extends AppCompatActivity {
             }
         });
 
-        // Fungsi tombol back di UI
         btnBack.setOnClickListener(v -> navigateBack());
+    }
+
+    private void loadFoodData() {
+        String currentDay = getCurrentDay(); // Mendapatkan nama hari saat ini
+        Log.d("FoodDay", "Hari saat ini: " + currentDay);
+
+        db.collection("food")
+                .whereEqualTo("day", currentDay)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    Log.d("FirestoreQuery", "Jumlah data yang ditemukan: " + queryDocumentSnapshots.size());
+                    foodList.clear(); // Clear sebelum menambahkan data baru
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        Log.d("FirestoreQuery", "Tidak ada data untuk hari ini.");
+                        tvEmptyMessage.setVisibility(View.VISIBLE);
+                        recyclerView.setVisibility(View.GONE);
+                    } else {
+                        for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
+                            FoodData food = snapshot.toObject(FoodData.class);
+                            if (food != null) {
+                                Log.d("FoodItem", "Data: " + food.getName() + ", Kategori: " + food.getCategory()); // ✅ Log data makanan
+                            }
+                            if (food != null && isValidCategory(food.getCategory())) {
+                                foodList.add(food);
+                            }
+                        }
+                        foodAdapter.notifyDataSetChanged();
+                        tvEmptyMessage.setVisibility(foodList.isEmpty() ? View.VISIBLE : View.GONE);
+                        recyclerView.setVisibility(foodList.isEmpty() ? View.GONE : View.VISIBLE);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FirestoreError", "Gagal mengambil data: " + e.getMessage());
+                    tvEmptyMessage.setText("Failed to load data.");
+                    tvEmptyMessage.setVisibility(View.VISIBLE);
+                    Toast.makeText(this, "Gagal mengambil data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                });
     }
 
     private void navigateBack() {
